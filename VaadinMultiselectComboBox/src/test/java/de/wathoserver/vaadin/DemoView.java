@@ -5,18 +5,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 @SuppressWarnings("serial")
 @Route("")
-public class DemoView extends Div {
+public class DemoView extends VerticalLayout {
 
   public DemoView() {
+    setMargin(true);
+    setPadding(true);
+    setSpacing(true);
+    setWidth("400px");
     createStringComboBox();
     createUserComboBox();
+    createEnumComboBox();
   }
 
   private void createStringComboBox() {
@@ -39,8 +44,8 @@ public class DemoView extends Div {
   private void createUserComboBox() {
     final MultiselectComboBox<User> box =
         new MultiselectComboBox<User>(user -> user.getForename() + " " + user.getSurename());
-    box.setLabel("SimpleTest");
-    box.setPlaceholder("Click here to select items");
+    box.setLabel("UserTest");
+    box.setPlaceholder("Click here to select user");
     final List<User> items = new ArrayList<>();
     items.add(new User(0, "John", "Doe"));
     items.add(new User(0, "Jane", "Doe"));
@@ -52,6 +57,23 @@ public class DemoView extends Div {
           + box.getSelectedItems().stream().map(User::toString).collect(Collectors.joining(", ")),
           2000, Position.MIDDLE);
     }));
+  }
+
+  private void createEnumComboBox() {
+    final MultiselectComboBox<Color> box =
+        new MultiselectComboBox<Color>();
+    box.setLabel("ColorTest");
+    box.setItems(Color.values());
+    add(box);
+    add(new Button("Show Selected", e -> {
+      Notification.show("Selected: "
+          + box.getSelectedItems().stream().map(Color::toString).collect(Collectors.joining(", ")),
+          2000, Position.MIDDLE);
+    }));
+  }
+
+  enum Color {
+    RED, BLUE, GREEN;
   }
 
   public class User {
