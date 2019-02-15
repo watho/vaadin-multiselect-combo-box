@@ -1,6 +1,6 @@
 # MultiselectComboBox
 
-Vaadin 10 Java integration of https://github.com/gatanaso/multiselect-combo-box
+Vaadin 12 Java integration of https://github.com/gatanaso/multiselect-combo-box
 
 ## Development instructions
 
@@ -10,9 +10,3 @@ mvn jetty:run
 ```
 
 This deploys demo at http://localhost:8080
-
-### Branching information
-
-* `master` the latest version of the starter, using latest platform snapshot
-* `V10` the version for Vaadin 10
-* `V11` the version for Vaadin 11
