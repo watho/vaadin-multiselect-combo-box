@@ -68,9 +68,10 @@ public class MultiselectComboBox<T> extends AbstractField<MultiselectComboBox<T>
 
     final ComponentEventListener<SelectedItemsChangedEvent> ls =
         event -> parseSelectedItemArray(event.getSelectedItems());
-
-    // ComponentUtil.addListener(this, SelectedItemsChangedEvent.class, ls);
     addListener(SelectedItemsChangedEvent.class, ls);
+    // Separate listener for clicking on the cross in the input field, cause it does not generate a
+    // SelectedItemChangedEvent
+    addListener(RemoveAllItemsEvent.class, e -> deselectAll());
     this.itemLabelGenerator = itemLabelGenerator;
     itemLabelPathProperty.set(this, "itemLabelPath");
     itemValuePathProperty.set(this, "itemValuePath");
