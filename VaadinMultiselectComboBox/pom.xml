@@ -3,7 +3,7 @@
 
     <groupId>de.wathoserver.vaadin</groupId>
     <artifactId>multiselect-combo-box</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <name>MultiselectComboBox</name>
     <description>Integration of multiselect-combo-box for Vaadin platform</description>
 
@@ -70,7 +70,7 @@
         <dependency>
             <groupId>org.webjars.bowergithub.gatanaso</groupId>
             <artifactId>multiselect-combo-box</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.3</version>
         </dependency>
     </dependencies>
 
