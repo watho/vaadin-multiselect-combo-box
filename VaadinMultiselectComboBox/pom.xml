@@ -3,7 +3,7 @@
 
     <groupId>de.wathoserver.vaadin</groupId>
     <artifactId>multiselect-combo-box</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4-SNAPSHOT</version>
     <name>MultiselectComboBox</name>
     <description>Integration of multiselect-combo-box for Vaadin platform</description>
 
