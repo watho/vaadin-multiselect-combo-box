@@ -6,7 +6,7 @@
 	<groupId>de.wathoserver.vaadin</groupId>
 	<artifactId>multiselect-combobox-demo</artifactId>
 	<name>Multiselect ComboBox Demo</name>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.1</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -72,13 +72,19 @@
 		<dependency>
 			<groupId>de.wathoserver.vaadin</groupId>
 			<artifactId>multiselect-combo-box</artifactId>
-			<version>0.0.2</version>
+			<version>0.0.3</version>
 		</dependency>
 		<!-- https://vaadin.com/directory/component/demohelperview -->
 		<dependency>
 			<groupId>com.github.appreciated</groupId>
 			<artifactId>demo-helper-view</artifactId>
 			<version>2.0.2</version>
+		</dependency>
+		<!-- https://vaadin.com/directory/component/css-grid-layout -->
+		<dependency>
+			<groupId>com.github.appreciated</groupId>
+			<artifactId>vaadin-css-grid</artifactId>
+			<version>0.8.1</version>
 		</dependency>
 
 		<dependency>
