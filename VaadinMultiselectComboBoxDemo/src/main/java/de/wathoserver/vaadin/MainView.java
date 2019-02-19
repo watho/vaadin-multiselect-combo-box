@@ -85,10 +85,10 @@ public class MainView extends VerticalLayout {
 
   private DeviceSwitchView createFirstDemo() {
     userBox = createUserExample();
-    final DeviceSwitchView firstDemo = new DeviceSwitchView(new VerticalLayout(
-        createStringExample(), userBox, createEnumExample(),
+    MultiselectComboBox<String> stringExample = createStringExample();
+    final DeviceSwitchView firstDemo = new DeviceSwitchView(new VerticalLayout(stringExample,
+        userBox, createEnumExample(),
         new Button("Show selected items", VaadinIcon.BULLETS.create(), e -> showSelectedItems())));
-    // firstDemo.setDeviceType(DeviceType.TABLET_LANDSCAPE);
     return firstDemo;
   }
 
@@ -131,7 +131,7 @@ public class MainView extends VerticalLayout {
     boxes.forEach(box -> Notification.show(box.getSelectedItems().toString()));
   }
 
-  private Component createStringExample() {
+  private MultiselectComboBox<String> createStringExample() {
     stringBox = new MultiselectComboBox<>();
     stringBox.setLabel("String example");
     stringBox.setPlaceholder("Click here to select");

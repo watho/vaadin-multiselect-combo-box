@@ -24,6 +24,7 @@ import com.vaadin.flow.component.grid.AbstractGridMultiSelectionModel;
 import com.vaadin.flow.data.selection.MultiSelect;
 import com.vaadin.flow.data.selection.MultiSelectionEvent;
 import com.vaadin.flow.data.selection.MultiSelectionListener;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.shared.Registration;
 
 import elemental.json.Json;
@@ -40,6 +41,8 @@ public class MultiselectComboBox<T> extends AbstractField<MultiselectComboBox<T>
       PropertyDescriptors.propertyWithDefault("label", "");
   private static final PropertyDescriptor<String, String> placeholderProperty =
       PropertyDescriptors.propertyWithDefault("placeholder", "Click here to select items");
+  private static final PropertyDescriptor<String, String> itemIdPathProperty =
+      PropertyDescriptors.propertyWithDefault("itemIdPath", "");
   private static final PropertyDescriptor<String, String> itemLabelPathProperty =
       PropertyDescriptors.propertyWithDefault("itemLabelPath", "");
   private static final PropertyDescriptor<String, String> itemValuePathProperty =
@@ -54,16 +57,33 @@ public class MultiselectComboBox<T> extends AbstractField<MultiselectComboBox<T>
       PropertyDescriptors.propertyWithDefault("invalid", false);
 
   private Set<T> selectedItems = new HashSet<>();
-  private Map<Integer, T> items;
+  // Object:ID
+  private Map<T, String> itemsToKeys;
+  private Map<String, T> keysToItems;
 
   private ItemLabelGenerator<T> itemLabelGenerator;
+  private ValueProvider<T, String> keyProvider;
+  private ValueProvider<T, String> defaultKeyProvider = new ValueProvider<T, String>() {
+
+    @Override
+    public String apply(T source) {
+      return source.getClass().getName() + '@' + Integer.toHexString(source.hashCode());
+    }
+  };
 
   public MultiselectComboBox() {
-    this(String::valueOf);
+    this(null, String::valueOf);
+  }
+  
+  public MultiselectComboBox(final ItemLabelGenerator<T> itemLabelGenerator) {
+    this(null, itemLabelGenerator);
   }
 
-  public MultiselectComboBox(final ItemLabelGenerator<T> itemLabelGenerator) {
+  public MultiselectComboBox(final ValueProvider<T, String> keyProvider,
+      final ItemLabelGenerator<T> itemLabelGenerator) {
     super(null);
+    this.itemLabelGenerator = itemLabelGenerator;
+    this.keyProvider = keyProvider;
     getElement().addSynchronizedProperty("title");
 
     final ComponentEventListener<SelectedItemsChangedEvent> ls =
@@ -72,9 +92,9 @@ public class MultiselectComboBox<T> extends AbstractField<MultiselectComboBox<T>
     // Separate listener for clicking on the cross in the input field, cause it does not generate a
     // SelectedItemChangedEvent
     addListener(RemoveAllItemsEvent.class, e -> deselectAll());
-    this.itemLabelGenerator = itemLabelGenerator;
     itemLabelPathProperty.set(this, "itemLabelPath");
     itemValuePathProperty.set(this, "itemValuePath");
+    itemIdPathProperty.set(this, "id");
   }
 
   public String getPlaceholder() {
@@ -130,7 +150,7 @@ public class MultiselectComboBox<T> extends AbstractField<MultiselectComboBox<T>
   }
 
   public Collection<T> getItems() {
-    return Collections.unmodifiableCollection(items.values());
+    return Collections.unmodifiableCollection(itemsToKeys.keySet());
   }
 
   public void setItems(@SuppressWarnings("unchecked") final T... values) {
@@ -140,16 +160,19 @@ public class MultiselectComboBox<T> extends AbstractField<MultiselectComboBox<T>
   public void setItems(Iterable<T> values) {
     final Iterator<T> it = values.iterator();
     final JsonArray jsonItems = Json.createArray();
-    items = new HashMap<Integer, T>();
+    itemsToKeys = new HashMap<T, String>();
+    keysToItems = new HashMap<String, T>();
     int n = 0;
-
     while (it.hasNext()) {
-      final JsonObject object = Json.createObject();
-      object.put("itemValuePath", n);
       final T item = it.next();
+      final JsonObject object = Json.createObject();
+      String id = getKeyProvider().apply(item);
+      object.put("id", id);
+      object.put("itemValuePath", id);
       object.put("itemLabelPath", itemLabelGenerator.apply(item));
       jsonItems.set(n, object);
-      items.put(n, item);
+      itemsToKeys.put(item, id);
+      keysToItems.put(id, item);
       n++;
     }
     getElement().setPropertyJson("items", jsonItems);
@@ -159,8 +182,8 @@ public class MultiselectComboBox<T> extends AbstractField<MultiselectComboBox<T>
     final Set<T> selectedItems = new HashSet<>();
     for (int i = 0; i < selectedItemsArray.length(); i++) {
       final JsonObject jsonItem = selectedItemsArray.getObject(i);
-      final Integer key = Double.valueOf(jsonItem.getNumber("itemValuePath")).intValue();
-      selectedItems.add(items.get(key));
+      final String key = jsonItem.getString("id");
+      selectedItems.add(keysToItems.get(key));
     }
     final Set<T> oldItems = getSelectedItems();
     this.selectedItems = selectedItems;
@@ -184,9 +207,11 @@ public class MultiselectComboBox<T> extends AbstractField<MultiselectComboBox<T>
     int n = 0;
 
     while (it.hasNext()) {
-      final JsonObject object = Json.createObject();
-      object.put("itemValuePath", n);
       final T item = it.next();
+      final JsonObject object = Json.createObject();
+      String id = itemsToKeys.get(item);
+      object.put("itemValuePath", id);
+      object.put("id", id);
       object.put("itemLabelPath", itemLabelGenerator.apply(item));
       jsonItems.set(n, object);
       n++;
@@ -194,6 +219,7 @@ public class MultiselectComboBox<T> extends AbstractField<MultiselectComboBox<T>
     getElement().setPropertyJson("selectedItems", jsonItems);
     this.setModelValue(this.selectedItems, false);
     this.fireEvent(new MultiSelectionEvent<MultiselectComboBox<T>, T>(this, this, oldItems, true));
+    // validate();
   }
 
   @Override
@@ -215,6 +241,26 @@ public class MultiselectComboBox<T> extends AbstractField<MultiselectComboBox<T>
   @Override
   public void deselectAll() {
     setSelectedItems(Collections.emptySet());
+  }
+
+  public void validate() {
+    getElement().callFunction("validate");
+  }
+
+  public ValueProvider<T, String> getKeyProvider() {
+    if (keyProvider == null) {
+      keyProvider = defaultKeyProvider;
+    }
+    return keyProvider;
+  }
+
+  /**
+   * Sets a keyProvider for getting unique keys from Item. Default uses classname+hashcode.
+   * 
+   * @param keyProvider
+   */
+  public void setKeyProvider(ValueProvider<T, String> keyProvider) {
+    this.keyProvider = keyProvider;
   }
 
   /**
