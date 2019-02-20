@@ -78,7 +78,7 @@
 		<dependency>
 			<groupId>com.github.appreciated</groupId>
 			<artifactId>demo-helper-view</artifactId>
-			<version>2.0.2</version>
+			<version>2.0.5</version>
 		</dependency>
 		<!-- https://vaadin.com/directory/component/css-grid-layout -->
 		<dependency>

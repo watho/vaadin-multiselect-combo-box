@@ -9,6 +9,7 @@ import com.github.appreciated.demo.helper.view.devices.DeviceType;
 import com.github.appreciated.demo.helper.view.devices.PhoneView;
 import com.github.appreciated.demo.helper.view.entity.CodeExample;
 import com.github.appreciated.demo.helper.view.paragraph.DeviceParagraphView;
+import com.github.appreciated.prism.element.Language;
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -27,46 +28,47 @@ import com.vaadin.flow.server.PWA;
 @SuppressWarnings("serial")
 @Route
 @PWA(name = "Demoapplication for Multiselect ComboBox", shortName = "MultiselectComboBoxDemo")
-public class MainView extends VerticalLayout {
+public class MainView extends DemoHelperView {
 
+  private static final String RELEASE = "v0.0.3.1";
   private MultiselectComboBox<String> stringBox;
   private MultiselectComboBox<User> userBox;
   private MultiselectComboBox<Color> enumBox;
 
   public MainView() {
-    final DemoHelperView view = new DemoHelperView()
-        .withHorizontalHeader("Multiselect ComboBox Demo", "") //
+    withHorizontalHeader("Multiselect ComboBox Demo", RELEASE) //
         .withParagraph("Simple Demo", "Select Strings, Pojos or Enumerations", createFirstDemo()) //
         .withParagraph("Get and Set-Demo", "",
             new Div(new Span("ComboBox implements interface "), new Anchor(
                 "https://vaadin.com/api/platform/12.0.6/com/vaadin/flow/data/selection/MultiSelect.html",
                 "MultiSelect")),
             createSecondDemo()) //
-        .withVerticalHeader("Usage")
-        .withStep("Install", "Add to your pom.xml",
+        .withParagraph("Usage")
+        .withStep("Install", "Add to your pom.xml, check latest version on vaadin directory",
             new CodeExample(
                 "<dependency>\n" + "   <groupId>de.wathoserver.vaadin</groupId>\n"
                     + "   <artifactId>multiselect-combo-box</artifactId>\n"
-                    + "   <version>0.0.3</version>\n" + "</dependency>\n\n" + "<repository>\n"
+                    + "   <version>" + RELEASE + "</version>\n" + "</dependency>\n\n"
+                    + "<repository>\n"
                     + "   <id>vaadin-addons</id>\n"
                     + "   <url>http://maven.vaadin.com/vaadin-addons</url>\n" + "</repository>",
-                "Maven", "Maven"))
+                Language.markup, "Maven"))
         .withStep("Create Component", "Create Component and set properties",
             new CodeExample(
                 "final MultiselectComboBox<String> box = new MultiselectComboBox<String>();\n"
                     + "box.setLabel(\"SimpleTest\");\n"
                     + "box.setPlaceholder(\"Click here to select items\");",
-                "java", "Java"))
+                Language.java, "Java"))
         .withStep("Add Items", "Add as List or with var-args",
             new CodeExample("final List<String> items = new ArrayList<>();\n"
                 + "items.add(\"One\");\n" + "    items.add(\"Two\");\n" + "items.add(\"Three\");\n"
                 + "    box.setItems(items);\n\nor\n\n"
-                + "box.setItems(\"One\", \"Two\", \"Three\");", "java", "Java"))
+                + "box.setItems(\"One\", \"Two\", \"Three\");", Language.java, "Java"))
         .withStep("Get selected items", "Getter or via Event",
             new CodeExample("final Collection<List> selectedItems = box.getSelectedItems();\n"
                 + "// or\n" + "box.addSelectionListener(event -> \n"
                 + "\tNotification.show(\"selection changed: \" + event.getAllSelectedItems()));",
-                "java", "Java"))
+                Language.java, "Java"))
         .withParagraph("Ressources", "",
             new Div(new Anchor("https://vaadin.com/directory/component/multiselectcombobox",
                 "Vaadin Directory")),
@@ -80,12 +82,11 @@ public class MainView extends VerticalLayout {
                 new Anchor("https://vaadin.com/directory/component/demohelperview",
                     "AddOn DemoHelperView"),
                 new Text(" by Johannes Goebel"))));
-    add(view);
   }
 
   private DeviceSwitchView createFirstDemo() {
     userBox = createUserExample();
-    MultiselectComboBox<String> stringExample = createStringExample();
+    final MultiselectComboBox<String> stringExample = createStringExample();
     final DeviceSwitchView firstDemo = new DeviceSwitchView(new VerticalLayout(stringExample,
         userBox, createEnumExample(),
         new Button("Show selected items", VaadinIcon.BULLETS.create(), e -> showSelectedItems())));
